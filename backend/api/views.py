@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from rest_framework import viewsets
+from rest_framework import mixins, viewsets
 
 from users.models import Organization
 
@@ -10,5 +10,7 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.prefetch_related("organizations")
 
 
-class OrganizationViewSet(viewsets.ModelViewSet):
+class OrganizationViewSet(
+    mixins.CreateModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet
+):
     queryset = Organization.objects.all()
