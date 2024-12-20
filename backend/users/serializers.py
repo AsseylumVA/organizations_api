@@ -12,7 +12,7 @@ User = get_user_model()
 
 def create_user_org_relation(organizations_data, user_obj):
     instances = [
-        OrganizationUser(user=user_obj, organization=x["id"])
+        OrganizationUser(user=user_obj, organization=x)
         for x in organizations_data
     ]
     OrganizationUser.objects.bulk_create(instances)
@@ -44,9 +44,22 @@ class OrganizationsSerializer(serializers.ModelSerializer):
         )
 
 
+class OrganizaitonsUserSerializer(serializers.ModelSerializer):
+    id = serializers.PrimaryKeyRelatedField(
+        queryset=Organization.objects.all()
+    )
+
+    class Meta:
+        model = OrganizationUser
+        fields = ("id",)
+
+
 class CustomUserSerializer(UserSerializer):
     photo = serializers.SerializerMethodField("get_image_url", read_only=True)
-    organizations = OrganizationsSerializer(many=True, read_only=True)
+    organizations = OrganizationsSerializer(
+        many=True,
+        read_only=True,
+    )
 
     class Meta:
         model = User
@@ -57,6 +70,7 @@ class CustomUserSerializer(UserSerializer):
             "last_name",
             "photo",
             "organizations",
+            "is_active",
         )
 
     def get_image_url(self, obj):
@@ -65,16 +79,14 @@ class CustomUserSerializer(UserSerializer):
         return None
 
 
-class OrganizaitonsUserSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Organization
-        fields = ("id",)
-
-
 class CustomUserCreateSerializer(UserCreateSerializer):
     photo = Base64ImageField(required=False, allow_null=True)
-    organizations = OrganizaitonsUserSerializer(many=True, required=False)
+    organizations = serializers.SlugRelatedField(
+        slug_field="id",
+        queryset=Organization.objects.all(),
+        many=True,
+        required=False,
+    )
 
     class Meta:
         model = User
@@ -87,13 +99,32 @@ class CustomUserCreateSerializer(UserCreateSerializer):
             "organizations",
         )
 
+    def validate(self, data):
+        organizations = data.get("organizations")
+        if organizations is not None and len(set(organizations)) != len(
+            organizations
+        ):
+            raise serializers.ValidationError(
+                {"errors": "Нельзя добавлять одинаковые организации"}
+            )
+
+        return data
+
+    def update(self, instance, validated_data):
+        if "organizations" not in self.initial_data:
+            instance = super().update(instance, validated_data)
+            return instance
+        organizations_data = validated_data.pop("organizations")
+        OrganizationUser.objects.filter(user=instance).delete()
+        instance = super().update(instance, validated_data)
+        create_user_org_relation(organizations_data, instance)
+        return instance
+
     def create(self, validated_data):
         if "organizations" not in self.initial_data:
-            user_obj = User.objects.create(**validated_data)
+            user_obj = User.objects.create_user(**validated_data)
             return user_obj
-
         organizations_data = validated_data.pop("organizations")
-        user_obj = User.objects.create(**validated_data)
+        user_obj = User.objects.create_user(**validated_data)
         create_user_org_relation(organizations_data, user_obj)
-
         return user_obj

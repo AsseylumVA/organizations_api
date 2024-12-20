@@ -1,3 +1,4 @@
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 
@@ -55,5 +56,11 @@ class User(AbstractUser):
 
 
 class OrganizationUser(models.Model):
-    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    organization = models.ForeignKey(
+        Organization,
+        on_delete=models.CASCADE,
+        related_name="user_organizations",
+    )
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="user_organizations"
+    )
