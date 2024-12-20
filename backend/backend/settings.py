@@ -150,6 +150,11 @@ DJOSER = {
         "user": ["users.permissions.IsAuthenticatedOrReadOnlyNotMe"],
         "user_list": ["rest_framework.permissions.IsAuthenticated"],
     },
+    "SERIALIZERS": {
+        "user": "users.serializers.CustomUserSerializer",
+        "current_user": "users.serializers.CustomUserSerializer",
+        "user_create": "users.serializers.CustomUserCreateSerializer",
+    },
 }
 
 SIMPLE_JWT = {
