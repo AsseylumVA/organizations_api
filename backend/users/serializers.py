@@ -95,6 +95,5 @@ class CustomUserCreateSerializer(UserCreateSerializer):
         organizations_data = validated_data.pop("organizations")
         user_obj = User.objects.create(**validated_data)
         create_user_org_relation(organizations_data, user_obj)
-        # user_obj.organizations.set(organizations_data)
 
         return user_obj
