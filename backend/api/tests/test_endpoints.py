@@ -16,7 +16,6 @@ class UrlTests(TestCase):
         super().setUpClass()
 
         cls.user = User.objects.create_user("testuser")
-        cls.user2 = User.objects.create_user("testuser2")
         for i in range(5):
             Organization.objects.create(
                 name=f"name{i}", description=f"test{i}"
@@ -64,4 +63,25 @@ class UrlTests(TestCase):
         response_org = response_json.get("organizations")
 
         num_orgs = OrganizationUser.objects.filter(user=self.user).count()
+        self.assertEqual(len(response_org), num_orgs)
+
+    def test_user_create(self):
+        response = self.guest_client.post(
+            Path_users,
+            {
+                "email": "test@m.com",
+                "password": "MySecretPas$word",
+                "fitst_name": "first_name_1",
+                "last_name": "last_name_1",
+                "organizations": [1, 2, 3],
+            },
+        )
+        self.assertEqual(response.status_code, 201)
+        response_json = response.json()
+        email = response_json.get("email")
+        user = User.objects.filter(email=email).first()
+
+        response_org = response_json.get("organizations")
+        num_orgs = OrganizationUser.objects.filter(user=user).count()
+
         self.assertEqual(len(response_org), num_orgs)
