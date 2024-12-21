@@ -44,16 +44,6 @@ class OrganizationsSerializer(serializers.ModelSerializer):
         )
 
 
-class OrganizaitonsUserSerializer(serializers.ModelSerializer):
-    id = serializers.PrimaryKeyRelatedField(
-        queryset=Organization.objects.all()
-    )
-
-    class Meta:
-        model = OrganizationUser
-        fields = ("id",)
-
-
 class CustomUserSerializer(UserSerializer):
     photo = serializers.SerializerMethodField("get_image_url", read_only=True)
     organizations = OrganizationsSerializer(

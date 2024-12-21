@@ -2,6 +2,8 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 
+from .utils import image_resize
+
 
 class Organization(models.Model):
     name = models.CharField(max_length=200)
@@ -53,6 +55,11 @@ class User(AbstractUser):
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ("first_name", "last_name")
+
+    def save(self, *args, **kwargs):
+        if self.photo:
+            image_resize(self.photo, 250, 250)
+        super().save(*args, **kwargs)
 
 
 class OrganizationUser(models.Model):
