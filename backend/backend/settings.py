@@ -148,15 +148,6 @@ REST_FRAMEWORK = {
 DJOSER = {
     "LOGIN_FIELD": "email",
     "HIDE_USERS": False,
-    "PERMISSIONS": {
-        "user": ["users.permissions.IsAuthenticatedOrReadOnlyNotMe"],
-        "user_list": ["rest_framework.permissions.IsAuthenticated"],
-    },
-    "SERIALIZERS": {
-        "user": "users.serializers.CustomUserSerializer",
-        "current_user": "users.serializers.CustomUserCreateSerializer",
-        "user_create": "users.serializers.CustomUserCreateSerializer",
-    },
 }
 
 SIMPLE_JWT = {
