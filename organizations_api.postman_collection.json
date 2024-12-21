@@ -1,0 +1,815 @@
+{
+	"info": {
+		"_postman_id": "5052ae19-2047-48d1-ae08-7e69a7e60d67",
+		"name": "organizations_api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "3919198"
+	},
+	"item": [
+		{
+			"name": "create_users_organizations",
+			"item": [
+				{
+					"name": "user_create",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseData = pm.response.json();\r",
+									"const id = _.get(responseData, \"id\");\r",
+									"    if (id) {\r",
+									"        pm.collectionVariables.set(\"first_user_id\", id);\r",
+									"    }\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": {{email_1}},\r\n    \"password\":{{pwd}},\r\n    \"first_name\":{{first_name_1}},\r\n    \"last_name\":{{last_name_1}},\r\n    \"photo\": \"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfQAAAH0CAIAAABEtEjdAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAALtSURBVHhe7cEBAQAAAIIg/69uSEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAN2p0SQABls8pUgAAAABJRU5ErkJggg==\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get_token_for_first_user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseData = pm.response.json();\r",
+									"const responseSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\":{\r",
+									"        \"refresh\": {\"type\": \"string\"},\r",
+									"        \"access\": {\"type\": \"string\"},\r",
+									"    },\r",
+									"    \"required\": [\"access\"],\r",
+									"    \"additionalProperties\": false\r",
+									"};\r",
+									"\r",
+									"pm.test(\"Статус-код ответа должен быть 200\", function () {\r",
+									"    pm.expect(\r",
+									"        pm.response.status,\r",
+									"        \"Убедитесь, что запроc на получение токена, содержащий корректные данные, возвращает ответ со статус-кодом 200\"\r",
+									"    ).to.be.eql(\"OK\");\r",
+									"});\r",
+									"pm.test('Структура ответа соответствует ожидаемой', function () {\r",
+									"    pm.response.to.have.jsonSchema(responseSchema);\r",
+									"    const access = _.get(responseData, \"access\");\r",
+									"    if (access) {\r",
+									"        pm.collectionVariables.set(\"userToken\", access);\r",
+									"    }\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": {{email_1}},\r\n    \"password\":{{pwd}}\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/jwt/create/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"jwt",
+								"create",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "org_create",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseData = pm.response.json();\r",
+									"const id = _.get(responseData, \"id\");\r",
+									"    if (id) {\r",
+									"        pm.collectionVariables.set(\"first_org_id\", id);\r",
+									"    }"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{userToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\":{{first_org_name}},\r\n    \"description\": {{first_org_description}}\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/organizations/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"organizations",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "second_org_create",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseData = pm.response.json();\r",
+									"const id = _.get(responseData, \"id\");\r",
+									"    if (id) {\r",
+									"        pm.collectionVariables.set(\"second_org_id\", id);\r",
+									"    }"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{userToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\":{{first_org_name}},\r\n    \"description\": {{first_org_description}}\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/organizations/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"organizations",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "user_create_2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseData = pm.response.json();\r",
+									"const id = _.get(responseData, \"id\");\r",
+									"    if (id) {\r",
+									"        pm.collectionVariables.set(\"second_user_id\", id);\r",
+									"    }\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": {{email_2}},\r\n    \"password\":{{pwd}},\r\n    \"first_name\":{{first_name_2}},\r\n    \"last_name\":{{last_name_2}},\r\n    \"organizations\":[\r\n        {{first_org_id}},\r\n        {{second_org_id}}\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get_token_for_second_user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseData = pm.response.json();",
+									"const responseSchema = {",
+									"    \"type\": \"object\",",
+									"    \"properties\":{",
+									"        \"refresh\": {\"type\": \"string\"},",
+									"        \"access\": {\"type\": \"string\"},",
+									"    },",
+									"    \"required\": [\"access\"],",
+									"    \"additionalProperties\": false",
+									"};",
+									"",
+									"pm.test(\"Статус-код ответа должен быть 200\", function () {",
+									"    pm.expect(",
+									"        pm.response.status,",
+									"        \"Убедитесь, что запроc на получение токена, содержащий корректные данные, возвращает ответ со статус-кодом 200\"",
+									"    ).to.be.eql(\"OK\");",
+									"});",
+									"pm.test('Структура ответа соответствует ожидаемой', function () {",
+									"    pm.response.to.have.jsonSchema(responseSchema);",
+									"    const access = _.get(responseData, \"access\");",
+									"    if (access) {",
+									"        pm.collectionVariables.set(\"secondUserToken\", access);",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"packages": {},
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": {{email_2}},\n    \"password\":{{pwd}}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/jwt/create/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"jwt",
+								"create",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "get_info",
+			"item": [
+				{
+					"name": "users_list",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{userToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "users_me",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{userToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get_profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{userToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/{{first_user_id}}/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"{{first_user_id}}",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get_profile_another_user",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{userToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/{{second_user_id}}/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"{{second_user_id}}",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "organizations_list",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{userToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/organizations/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"organizations",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "editing_users",
+			"item": [
+				{
+					"name": "first_user_rename",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{userToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"first_name\": {{first_user_new_name}}\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/me/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"me",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "third_org_create",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseData = pm.response.json();\r",
+									"const id = _.get(responseData, \"id\");\r",
+									"    if (id) {\r",
+									"        pm.collectionVariables.set(\"third_org_id\", id);\r",
+									"    }"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{userToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\":{{third_org_name}},\r\n    \"description\": {{third_org_description}}\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/organizations/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"organizations",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "furst_user_add_org",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{userToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"organizations\":[\r\n        {{first_org_id}},\r\n        {{second_org_id}},\r\n        {{third_org_id}}\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/me/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"me",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "rename_another_user",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{userToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"first_name\": {{first_user_new_name}}\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/{{second_user_id}}/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"{{second_user_id}}",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "email_1",
+			"value": "\"email_1@test.com\"",
+			"type": "string"
+		},
+		{
+			"key": "email_2",
+			"value": "\"email_2@test.com\"",
+			"type": "string"
+		},
+		{
+			"key": "pwd",
+			"value": "\"MySecretPas$word\"",
+			"type": "string"
+		},
+		{
+			"key": "first_name_1",
+			"value": "\"first_name_1\"",
+			"type": "string"
+		},
+		{
+			"key": "first_name_2",
+			"value": "\"first_name_2\"",
+			"type": "string"
+		},
+		{
+			"key": "last_name_1",
+			"value": "\"last_name_1\"",
+			"type": "string"
+		},
+		{
+			"key": "last_name_2",
+			"value": "\"last_name_2\"",
+			"type": "string"
+		},
+		{
+			"key": "userToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "secondUserToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "first_user_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "second_user_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "first_user_new_name",
+			"value": "\"new_name_1\"",
+			"type": "string"
+		},
+		{
+			"key": "first_org_name",
+			"value": "\"org_name_1\"",
+			"type": "string"
+		},
+		{
+			"key": "second_org_name",
+			"value": "\"org_name_2\"",
+			"type": "string"
+		},
+		{
+			"key": "third_org_name",
+			"value": "\"org_name_3\"",
+			"type": "string"
+		},
+		{
+			"key": "first_org_description",
+			"value": "\"Краткое описание организации 1\"",
+			"type": "string"
+		},
+		{
+			"key": "second_org_description",
+			"value": "\"Краткое описание организации 2\"",
+			"type": "string"
+		},
+		{
+			"key": "third_org_description",
+			"value": "\"Краткое описание организации 3\"",
+			"type": "string"
+		},
+		{
+			"key": "first_org_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "second_org_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "third_org_id",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
