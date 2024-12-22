@@ -33,6 +33,8 @@ class UrlTests(TestCase):
     def test_organizations_get(self):
         response = self.client.get(Path_organizations)
         self.assertEqual(response.status_code, 200)
+        reponse_json = response.json()
+        self.assertIsInstance(reponse_json, list)
 
     def test_organizations_create(self):
         response = self.client.post(
@@ -43,6 +45,8 @@ class UrlTests(TestCase):
             },
         )
         self.assertEqual(response.status_code, 201)
+        reponse_json = response.json()
+        self.assertIn("id", reponse_json)
 
     def test_organizations_create_unauthorized(self):
         response = self.guest_client.post(
