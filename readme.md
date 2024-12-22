@@ -8,6 +8,11 @@
 
 ``` cd organizations_api/ ```
 
+Выполнить миграции
+
+```
+python3 manage.py migrate
+```
 
 Запустить dev server
 
